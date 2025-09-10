@@ -58,15 +58,15 @@
 <body>
     <div class="form-container">
         <h2>Formulario para Enviar Correo</h2>
-        <form action="EnviarC" method="POST">
+        <form action="../EnviarC" method="POST">
             <label for="destinatario">Destinatario:</label>
             <input type="email" id="destinatario" name="destinatario" required>
 
             <label for="asunto">Asunto:</label>
             <input type="text" id="asunto" name="asunto" required>
-
+            
             <label for="mensaje">Mensaje:</label>
-            <textarea id="mensaje" name="mensaje" rows="4" required></textarea>
+            <input type="text" id="mensaje" name="mensaje" required>
 
             <input type="submit" value="Enviar Correo">
         </form>

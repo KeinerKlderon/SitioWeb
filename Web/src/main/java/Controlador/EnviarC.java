@@ -40,7 +40,6 @@ public class EnviarC extends HttpServlet {
          */
         protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
                 // TODO Auto-generated method stub
-                response.getWriter().append("Served at: ").append(request.getContextPath());
         }
 
         /**
@@ -48,16 +47,14 @@ public class EnviarC extends HttpServlet {
          */
         protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
                 // TODO Auto-generated method stub
-                doGet(request, response);
-
         // Leer datos del formulario correctamente
         String destinatario = request.getParameter("destinatario");
         String asunto = request.getParameter("asunto");
         String mensajeTexto = request.getParameter("mensaje");
 
         //  Tu cuenta de Gmail (remitente)
-        String remitente = "caligomez294@gmail.com";
-        String clave = "cqec dtwz unny xiia"; // Contraseña de aplicación, no la personal
+        String remitente = "keineroviedo03@gmail.com";
+        String clave = "tpcm lclp lacf rqgz"; // Contraseña de aplicación, no la personal
 
         //  Configuración SMTP //Protocolo de transferencia de correo
         Properties props = new Properties();
@@ -89,7 +86,7 @@ public class EnviarC extends HttpServlet {
             PrintWriter out = response.getWriter();
             out.println("<html><body style='font-family:sans-serif; text-align:center; padding-top:40px;'>");
             out.println("<h2 style='color:green;'>¡Correo enviado exitosamente a " + destinatario + "!</h2>");
-            out.println("<a href='EnviarCorreo.jsp'>← Volver</a>");
+            out.println("<a href='index.jsp'>← Volver</a>");
             out.println("</body></html>");
 
         } catch (MessagingException e) {
@@ -99,7 +96,7 @@ public class EnviarC extends HttpServlet {
             out.println("<html><body style='font-family:sans-serif; text-align:center; padding-top:40px;'>");
             out.println("<h2 style='color:red;'>Error al enviar correo:</h2>");
             out.println("<p>" + e.getMessage() + "</p>");
-            out.println("<a href='EnviarCorreo.jsp'>← Volver</a>");
+            out.println("<a href='index.jsp'>← Volver</a>");
             out.println("</body></html>");
         }
     }

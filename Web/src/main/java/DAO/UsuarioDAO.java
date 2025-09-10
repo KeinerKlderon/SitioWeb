@@ -2,6 +2,7 @@ package DAO;
 
 import Modelo.Usuario;
 import Controlador.Conexion;
+import Controlador.Notificaciones;
 
 import java.sql.*;
 import java.util.*;
@@ -27,6 +28,8 @@ public class UsuarioDAO {
 
 			// Ejecutamos la consulta para insertar el usuario
 			ps.executeUpdate();
+			Notificaciones Notificaciones = new Notificaciones();
+			Notificaciones.Not("Registro De Usuario","Usuario Registrado Exitosamente");
 
 		} catch (SQLException e) {
 			e.printStackTrace(); // Si ocurre un error, imprimimos el stack trace para depuración
@@ -44,6 +47,8 @@ public class UsuarioDAO {
 
 			ps.setInt(1, userId);
 			ps.executeUpdate();
+			Notificaciones Notificaciones = new Notificaciones();
+			Notificaciones.Not("Control De Usuario","Usuario Eliminado Exitosamente con el numero de id" + userId);
 
 		} catch (SQLException e) {
 			e.printStackTrace(); // Si ocurre un error, imprimimos el stack trace para depuración
@@ -68,6 +73,8 @@ public class UsuarioDAO {
 			ps.setInt(5, user.getId()); // El ID es necesario para identificar qué usuario actualizar
 
 			ps.executeUpdate();
+			Notificaciones Notificaciones = new Notificaciones();
+			Notificaciones.Not("Control De Usuario","Usuario Actualizado Exitosamente Con el Id: " + user.getId());
 
 		} catch (SQLException e) {
 			e.printStackTrace(); // Si ocurre un error, imprimimos el stack trace para depuración

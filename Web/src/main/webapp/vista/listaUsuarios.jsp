@@ -85,7 +85,7 @@
 	<a href="UsuarioServlet?action=insert">Agregar nuevo usuario</a>
 	<br>
 
-	<form action="EnviarC" method="POST">
+	<form action="vista/EnviarCorreo.jsp" method="POST">
 		<!-- Botón para enviar correo -->
 		<button type="submit">Enviar Correo</button>
 	</form>
