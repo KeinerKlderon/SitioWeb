@@ -15,7 +15,7 @@
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="lib" path="C:/server/apache-tomcat-10.1.43/lib/mysql-connector-j-9.3.0.jar.jar"/>
 	<classpathentry kind="lib" path="C:/Users/APRENDIZ/Desktop/Keiner/itextpdf-5.5.13.2.jar"/>
-	<classpathentry kind="lib" path="D:/javax.mail.jar"/>
-	<classpathentry kind="lib" path="D:/jakarta.activation-2.0.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/APRENDIZ/Documents/jakarta.activation-2.0.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/APRENDIZ/Documents/jakarta.mail-2.0.2.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

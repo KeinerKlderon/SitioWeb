@@ -4,46 +4,43 @@ import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-
 import java.io.IOException;
 import java.util.List;
-import java.util.Properties;
-
 import DAO.UsuarioDAO;
 import Modelo.Usuario;
 
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.*;
-
-import jakarta.mail.*;
-import jakarta.mail.internet.*;
-import jakarta.mail.util.ByteArrayDataSource;
-import jakarta.activation.*;
-
-@WebServlet("/UsuarioServlet")
+@WebServlet("/UsuarioServlet") // Indica que este servlet se invoca con la URL "/UsuarioServlet"
 public class UsuarioServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    private static final String INSERT_OR_EDIT = "/vista/formularioUsuario.jsp";
-    private static final String LIST_USER = "/vista/listaUsuarios.jsp";
+    // Definimos las vistas a las que redirigirá el servlet
+    private static final String INSERT_OR_EDIT = "/vista/formularioUsuario.jsp"; // Vista para agregar/editar usuario
+    private static final String LIST_USER = "/vista/listaUsuarios.jsp"; // Vista para listar usuarios
 
+    // Instancia de la clase DAO que maneja las operaciones con la base de datos
     private UsuarioDAO dao = new UsuarioDAO();
 
+    /**
+     * Maneja las solicitudes GET. Dependiendo de la acción (delete, edit, insert, list), 
+     * redirige a la vista correspondiente.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // Se obtiene el parámetro 'action' que indica la operación a realizar
         String action = request.getParameter("action");
         String forward;
 
+        // Si la acción es "delete", eliminamos el usuario
         if ("delete".equalsIgnoreCase(action)) {
             try {
                 int id = Integer.parseInt(request.getParameter("id"));
-                dao.deleteUser(id);
+                dao.deleteUser(id); 
             } catch (NumberFormatException e) {
-                e.printStackTrace();
                 request.setAttribute("mensaje", "ID de usuario inválido.");
             }
+            // Después de eliminar, redirigimos a la lista de usuarios
             request.setAttribute("users", dao.getAllUsers());
             forward = LIST_USER;
 
@@ -54,7 +51,6 @@ public class UsuarioServlet extends HttpServlet {
                 request.setAttribute("user", user);
                 forward = INSERT_OR_EDIT;
             } catch (NumberFormatException e) {
-                e.printStackTrace();
                 request.setAttribute("mensaje", "ID de usuario inválido.");
                 request.setAttribute("users", dao.getAllUsers());
                 forward = LIST_USER;
@@ -65,137 +61,52 @@ public class UsuarioServlet extends HttpServlet {
             request.setAttribute("user", user);
             forward = INSERT_OR_EDIT;
 
-        } else if ("buscarPorId".equalsIgnoreCase(action)) {
-            try {
-                int id = Integer.parseInt(request.getParameter("id"));
-                Usuario user = dao.getUserById(id);
-                if (user != null) {
-                    request.setAttribute("user", user);
-                    forward = INSERT_OR_EDIT;
-                } else {
-                    request.setAttribute("mensaje", "Usuario no encontrado.");
-                    request.setAttribute("users", dao.getAllUsers());
-                    forward = LIST_USER;
-                }
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-                request.setAttribute("mensaje", "ID de usuario inválido.");
-                request.setAttribute("users", dao.getAllUsers());
-                forward = LIST_USER;
-            }
-
         } else {
             request.setAttribute("users", dao.getAllUsers());
             forward = LIST_USER;
         }
 
+        // Redirigimos a la vista correspondiente
         RequestDispatcher dispatcher = request.getRequestDispatcher(forward);
         dispatcher.forward(request, response);
     }
 
+    /**
+     * Maneja las solicitudes POST. Se utiliza para agregar o editar un usuario.
+     * Dependiendo de si el ID está vacío o no, determina si es un nuevo usuario o uno existente.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // Creamos un nuevo objeto Usuario con los datos del formulario
         Usuario user = new Usuario();
         user.setNombre(request.getParameter("nombre"));
         user.setEmail(request.getParameter("email"));
         user.setTelefono(request.getParameter("telefono"));
         user.setDireccion(request.getParameter("direccion"));
 
+        // Obtenemos el ID del usuario desde el formulario
         String id = request.getParameter("id");
+
+        // Verificamos si el ID es nulo o vacío, lo que indica que es un nuevo usuario
         boolean esNuevo = (id == null || id.isEmpty() || id.equals("0"));
 
+        // Si es un nuevo usuario, lo agregamos a la base de datos
         if (esNuevo) {
             dao.addUser(user);
-
-            // Enviar correo con PDF
-            try {
-                enviarCorreoPDF();
-                request.setAttribute("mensaje", "Usuario agregado y correo enviado correctamente.");
-            } catch (Exception e) {
-                e.printStackTrace();
-                request.setAttribute("mensaje", "Usuario agregado, pero error al enviar el correo.");
-            }
-
+            request.setAttribute("mensaje", "Usuario registrado correctamente.");
         } else {
-            try {
-                user.setId(Integer.parseInt(id));
-                dao.updateUser(user);
-                request.setAttribute("mensaje", "Usuario actualizado correctamente.");
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-                request.setAttribute("mensaje", "ID de usuario inválido.");
-            }
+            // Si no es nuevo, lo actualizamos en la base de datos
+            user.setId(Integer.parseInt(id));
+            dao.updateUser(user);
+            request.setAttribute("mensaje", "Usuario actualizado correctamente.");
         }
 
+        // Recuperamos la lista de todos los usuarios y la mostramos
         request.setAttribute("users", dao.getAllUsers());
+        // Redirigimos a la vista de lista de usuarios
         RequestDispatcher dispatcher = request.getRequestDispatcher(LIST_USER);
         dispatcher.forward(request, response);
-    }
-
-    private void enviarCorreoPDF() throws Exception {
-        final String remitente = "keineroviedo03@gmail.com";
-        final String clave = "djhf pxpr vxsy mjso"; // Cambia por tu password de app de Gmail
-        final String destinatario = "wendyvizcaino73@gmail.com";
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Document document = new Document();
-        PdfWriter.getInstance(document, baos);
-        document.open();
-
-        List<Usuario> users = dao.getAllUsers();
-
-        document.add(new Paragraph("Lista de Usuarios"));
-        document.add(new Paragraph(" "));
-
-        PdfPTable table = new PdfPTable(4);
-        table.addCell("Nombre");
-        table.addCell("Email");
-        table.addCell("Teléfono");
-        table.addCell("Dirección");
-
-        for (Usuario user : users) {
-            table.addCell(user.getNombre());
-            table.addCell(user.getEmail());
-            table.addCell(user.getTelefono());
-            table.addCell(user.getDireccion());
-        }
-
-        document.add(table);
-        document.close();
-
-        Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.port", "587");
-
-        Session session = Session.getInstance(props, new Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(remitente, clave);
-            }
-        });
-
-        MimeMessage message = new MimeMessage(session);
-        message.setFrom(new InternetAddress(remitente));
-        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatario));
-        message.setSubject("Nuevo usuario registrado - PDF actualizado");
-
-        MimeBodyPart texto = new MimeBodyPart();
-        texto.setText("Hola, se ha registrado un nuevo usuario. Adjunto el PDF actualizado con todos los usuarios.");
-
-        MimeBodyPart adjunto = new MimeBodyPart();
-        DataSource source = new ByteArrayDataSource(baos.toByteArray(), "application/pdf");
-        adjunto.setDataHandler(new DataHandler(source));
-        adjunto.setFileName("usuarios.pdf");
-
-        Multipart multipart = new MimeMultipart();
-        multipart.addBodyPart(texto);
-        multipart.addBodyPart(adjunto);
-
-        message.setContent(multipart);
-
-        Transport.send(message);
     }
 }
